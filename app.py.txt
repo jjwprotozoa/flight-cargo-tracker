@@ -3,21 +3,24 @@ import requests
 
 app = Flask(__name__)
 
-FLIGHTAWARE_API_KEY = 'YOUR_FLIGHTAWARE_API_KEY'
-FLIGHTSTATS_APP_ID = 'YOUR_FLIGHTSTATS_APP_ID'
-FLIGHTSTATS_APP_KEY = 'YOUR_FLIGHTSTATS_APP_KEY'
-SOUTHWEST_CARGO_API_KEY = 'YOUR_SOUTHWEST_CARGO_API_KEY'
+FLIGHTSTATS_APP_ID = '8808bb23'
+FLIGHTSTATS_APP_KEY = 'b138ee0863859350ffb19c540be19713'
+SOUTHWEST_CARGO_API_KEY = '59947e53eemsh783374ca03c5bdap101325jsn1face78e2b3f'
 
 @app.route('/flight-info/<flight_number>', methods=['GET'])
 def get_flight_info(flight_number):
-    flightaware_url = f'https://flightxml.flightaware.com/json/FlightXML2/FlightInfoEx?ident={flight_number}'
-    response = requests.get(flightaware_url, auth=(FLIGHTAWARE_API_KEY, ''))
+    flightstats_url = f'https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{flight_number}?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}'
+    response = requests.get(flightstats_url)
     return jsonify(response.json())
 
 @app.route('/cargo-info/<tracking_id>', methods=['GET'])
 def get_cargo_info(tracking_id):
-    cargo_url = f'https://api.swacargo.com/v1/track/{tracking_id}'
-    headers = {'Authorization': f'Bearer {SOUTHWEST_CARGO_API_KEY}'}
+    cargo_url = f'https://rapidapi.p.rapidapi.com/cargo/v1/track/{tracking_id}'
+    headers = {
+        'Authorization': f'Bearer {SOUTHWEST_CARGO_API_KEY}',
+        'x-rapidapi-host': 'sw-cargo-tracking.p.rapidapi.com',
+        'x-rapidapi-key': SOUTHWEST_CARGO_API_KEY
+    }
     response = requests.get(cargo_url, headers=headers)
     return jsonify(response.json())
 
