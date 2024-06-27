@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
 import requests
+import os
 
 app = Flask(__name__)
 
-FLIGHTSTATS_APP_ID = 'YOUR_FLIGHTSTATS_APP_ID'
-FLIGHTSTATS_APP_KEY = 'YOUR_FLIGHTSTATS_APP_KEY'
-SOUTHWEST_CARGO_API_KEY = 'YOUR_SOUTHWEST_CARGO_API_KEY'
+FLIGHTSTATS_APP_ID = os.getenv('FLIGHTSTATS_APP_ID')
+FLIGHTSTATS_APP_KEY = os.getenv('FLIGHTSTATS_APP_KEY')
+SOUTHWEST_CARGO_API_KEY = os.getenv('SOUTHWEST_CARGO_API_KEY')
 
 @app.route('/flight-info/<flight_number>', methods=['GET'])
 def get_flight_info(flight_number):
