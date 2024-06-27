@@ -1,0 +1,25 @@
+from flask import Flask, jsonify, request
+import requests
+
+app = Flask(__name__)
+
+FLIGHTAWARE_API_KEY = 'YOUR_FLIGHTAWARE_API_KEY'
+FLIGHTSTATS_APP_ID = 'YOUR_FLIGHTSTATS_APP_ID'
+FLIGHTSTATS_APP_KEY = 'YOUR_FLIGHTSTATS_APP_KEY'
+SOUTHWEST_CARGO_API_KEY = 'YOUR_SOUTHWEST_CARGO_API_KEY'
+
+@app.route('/flight-info/<flight_number>', methods=['GET'])
+def get_flight_info(flight_number):
+    flightaware_url = f'https://flightxml.flightaware.com/json/FlightXML2/FlightInfoEx?ident={flight_number}'
+    response = requests.get(flightaware_url, auth=(FLIGHTAWARE_API_KEY, ''))
+    return jsonify(response.json())
+
+@app.route('/cargo-info/<tracking_id>', methods=['GET'])
+def get_cargo_info(tracking_id):
+    cargo_url = f'https://api.swacargo.com/v1/track/{tracking_id}'
+    headers = {'Authorization': f'Bearer {SOUTHWEST_CARGO_API_KEY}'}
+    response = requests.get(cargo_url, headers=headers)
+    return jsonify(response.json())
+
+if __name__ == '__main__':
+    app.run(debug=True)
