@@ -16,8 +16,15 @@ def get_flight_info(flight_number):
     url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{flight_number}?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}"
     response = requests.get(url)
 
+    print(f"Response status code: {response.status_code}")
+    print(f"Response content: {response.text}")
+
     if response.status_code == 200:
-        return jsonify(response.json())
+        try:
+            return jsonify(response.json())
+        except ValueError as e:
+            print(f"JSON decode error: {e}")
+            return jsonify({"error": "Error decoding JSON response"}), 500
     else:
         return jsonify({"error": response.json()}), response.status_code
 
