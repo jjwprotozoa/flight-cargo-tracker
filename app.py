@@ -91,6 +91,7 @@ def get_weather():
         data = response.json()
         return jsonify(data)
     except requests.RequestException as e:
+        app.logger.error(f"Weather API request failed: {str(e)}")
         return jsonify({"error": f"Weather API request failed: {str(e)}"}), 500
 
 if __name__ == '__main__':

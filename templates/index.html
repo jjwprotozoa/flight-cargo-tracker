@@ -16,9 +16,9 @@
     
     <form id="flight-form">
         <label for="airline_code">Airline Code:</label>
-        <input type="text" id="airline_code" name="airline_code" required>
+        <input type="text" id="airline_code" name="airline_code" value="SAW" required>
         <label for="flight_number">Flight Number:</label>
-        <input type="text" id="flight_number" name="flight_number" required>
+        <input type="text" id="flight_number" name="flight_number" value="3719" required>
         <button type="submit">Get Flight Info</button>
     </form>
 
@@ -26,7 +26,7 @@
 
     <form id="cargo-form">
         <label for="waybill_number">Waybill Number:</label>
-        <input type="text" id="waybill_number" name="waybill_number" required>
+        <input type="text" id="waybill_number" name="waybill_number" value="14559565" required>
         <button type="submit">Track Cargo</button>
     </form>
 
@@ -42,6 +42,7 @@
 
     <div id="map"></div>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
         mapboxgl.accessToken = '{{ mapbox_key }}';
         var map = new mapboxgl.Map({
@@ -56,24 +57,26 @@
             const airline_code = document.getElementById('airline_code').value;
             const flight_number = document.getElementById('flight_number').value;
             
-            fetch('/get_flight_info', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ airline_code, flight_number })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    document.getElementById('flight-info').innerText = data.error;
-                } else {
-                    document.getElementById('flight-info').innerText = JSON.stringify(data, null, 2);
-                    map.flyTo({
-                        center: [data.longitude, data.latitude],
-                        essential: true
-                    });
-                    new mapboxgl.Marker()
-                        .setLngLat([data.longitude, data.latitude])
-                        .addTo(map);
+            $.ajax({
+                type: 'POST',
+                url: '/get_flight_info',
+                data: { airline_code, flight_number },
+                success: function(data) {
+                    if (data.error) {
+                        $('#flight-info').text(data.error);
+                    } else {
+                        $('#flight-info').text(JSON.stringify(data, null, 2));
+                        map.flyTo({
+                            center: [data.longitude, data.latitude],
+                            essential: true
+                        });
+                        new mapboxgl.Marker()
+                            .setLngLat([data.longitude, data.latitude])
+                            .addTo(map);
+                    }
+                },
+                error: function(xhr) {
+                    $('#flight-info').text(`Error: ${xhr.responseText}`);
                 }
             });
         });
@@ -82,14 +85,16 @@
             e.preventDefault();
             const waybill_number = document.getElementById('waybill_number').value;
             
-            fetch('/track_cargo', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ waybill_number })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('cargo-info').innerText = data.error || JSON.stringify(data, null, 2);
+            $.ajax({
+                type: 'POST',
+                url: '/track_cargo',
+                data: { waybill_number },
+                success: function(data) {
+                    $('#cargo-info').text(data.error || JSON.stringify(data, null, 2));
+                },
+                error: function(xhr) {
+                    $('#cargo-info').text(`Error: ${xhr.responseText}`);
+                }
             });
         });
 
@@ -97,10 +102,15 @@
             e.preventDefault();
             const city = document.getElementById('city').value;
             
-            fetch(`/get_weather?city=${city}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('weather-info').innerText = data.error || JSON.stringify(data, null, 2);
+            $.ajax({
+                type: 'GET',
+                url: `/get_weather?city=${city}`,
+                success: function(data) {
+                    $('#weather-info').text(data.error || JSON.stringify(data, null, 2));
+                },
+                error: function(xhr) {
+                    $('#weather-info').text(`Error: ${xhr.responseText}`);
+                }
             });
         });
     </script>
