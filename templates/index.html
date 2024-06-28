@@ -1,4 +1,3 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +9,7 @@
     <h1>Flight Cargo Tracker</h1>
     <form id="flightForm">
         <label for="carrier">Carrier Code:</label>
-        <input type="text" id="carrier" name="carrier"><br><br>
+        <input type="text" id="carrier" name="carrier" oninput="this.value = this.value.toUpperCase()"><br><br>
         <label for="flightNumber">Flight Number:</label>
         <input type="text" id="flightNumber" name="flightNumber"><br><br>
         <button type="submit">Get Flight Info</button>
@@ -19,7 +18,7 @@
     <script>
         document.getElementById('flightForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            const carrier = document.getElementById('carrier').value;
+            const carrier = document.getElementById('carrier').value.toUpperCase();
             const flightNumber = document.getElementById('flightNumber').value;
             fetch(`/flight-info/${carrier}/${flightNumber}`)
                 .then(response => response.json())
