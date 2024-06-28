@@ -1,36 +1,33 @@
-import logging
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, request, jsonify
 import requests
-import os
+import logging
 
 app = Flask(__name__)
 
-logging.basicConfig(level=logging.DEBUG)
-
-# Set environment variables for the API credentials
-OPENSKY_USERNAME = os.getenv('OPENSKY_USERNAME', 'your_opensky_username')
-OPENSKY_PASSWORD = os.getenv('OPENSKY_PASSWORD', 'your_opensky_password')
+logging.basicConfig(level=logging.INFO)
 
 @app.route('/')
-def home():
+def index():
     return render_template('index.html')
 
-@app.route('/flight-info/<icao24>')
-def flight_info(icao24):
-    url = f"https://opensky-network.org/api/states/all?icao24={icao24}"
-    app.logger.debug(f"Request URL: {url}")
+@app.route('/get_flight_info', methods=['POST'])
+def get_flight_info():
+    flight_number = request.form['flight_number']
+    logging.info(f"Received request for flight number: {flight_number}")
+    api_url = f"https://opensky-network.org/api/states/all?icao24={flight_number}"
+    
     try:
-        response = requests.get(url, auth=(OPENSKY_USERNAME, OPENSKY_PASSWORD))
+        response = requests.get(api_url)
         response.raise_for_status()
         data = response.json()
-        app.logger.debug(f"API Response: {data}")
+        logging.info(f"Data received: {data}")
         return jsonify(data)
     except requests.exceptions.HTTPError as http_err:
-        app.logger.error(f"HTTP error occurred: {http_err}")
-        return jsonify({'error': f'HTTP error occurred: {http_err}'}), 404
+        logging.error(f"HTTP error occurred: {http_err}")
+        return jsonify({'error': f'HTTP error occurred: {http_err}'})
     except Exception as err:
-        app.logger.error(f"An error occurred: {err}")
-        return jsonify({'error': f'An error occurred: {err}'}), 500
+        logging.error(f"An error occurred: {err}")
+        return jsonify({'error': f'An error occurred: {err}'})
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

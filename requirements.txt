@@ -1,4 +1,5 @@
-Flask==2.0.3
-gunicorn==20.1.0
-requests==2.27.1
-werkzeug==2.0.3
+flask
+requests
+gunicorn
+opensky-api==1.0.0  # Use the correct version
+werkzeug==2.0.3     # Ensure compatibility
