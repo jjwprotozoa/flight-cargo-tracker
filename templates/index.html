@@ -1,0 +1,35 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Cargo Tracker</title>
+</head>
+<body>
+    <h1>Flight Cargo Tracker</h1>
+    <form id="flightForm">
+        <label for="carrier">Carrier Code:</label>
+        <input type="text" id="carrier" name="carrier"><br><br>
+        <label for="flightNumber">Flight Number:</label>
+        <input type="text" id="flightNumber" name="flightNumber"><br><br>
+        <button type="submit">Get Flight Info</button>
+    </form>
+    <div id="result"></div>
+    <script>
+        document.getElementById('flightForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const carrier = document.getElementById('carrier').value;
+            const flightNumber = document.getElementById('flightNumber').value;
+            fetch(`/flight-info/${carrier}/${flightNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    document.getElementById('result').innerText = `Error: ${error}`;
+                });
+        });
+    </script>
+</body>
+</html>
