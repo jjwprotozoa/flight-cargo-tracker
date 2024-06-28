@@ -3,9 +3,9 @@ import requests
 
 app = Flask(__name__)
 
-# Replace these with your actual RapidAPI key and host
-RAPIDAPI_KEY = "59947e53eemsh783374ca03c5bdap101325jsn1face78e2b3f"
-RAPIDAPI_HOST = "southwest.p.rapidapi.com"
+# Replace these with your actual FlightStats API credentials
+FLIGHTSTATS_APP_ID = "8808bb23"
+FLIGHTSTATS_APP_KEY = "b138ee0863859350ffb19c540be19713"
 
 @app.route('/')
 def index():
@@ -13,16 +13,8 @@ def index():
 
 @app.route('/flight-info/<flight_number>', methods=['GET'])
 def get_flight_info(flight_number):
-    url = f"https://{RAPIDAPI_HOST}/flights/{flight_number}"
-
-    headers = {
-        "x-rapidapi-key": RAPIDAPI_KEY,
-        "x-rapidapi-host": RAPIDAPI_HOST
-    }
-
-    querystring = {"currency": "USD", "adults": "1", "seniors": "0"}
-
-    response = requests.get(url, headers=headers, params=querystring)
+    url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{flight_number}?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}"
+    response = requests.get(url)
 
     if response.status_code == 200:
         return jsonify(response.json())
