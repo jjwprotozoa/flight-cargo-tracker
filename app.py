@@ -2,7 +2,6 @@ import logging
 from flask import Flask, render_template, jsonify, request
 import requests
 import os
-from urllib.parse import quote
 
 app = Flask(__name__)
 
@@ -18,7 +17,7 @@ def home():
 
 @app.route('/flight-info/<icao24>')
 def flight_info(icao24):
-    url = f"https://opensky-network.org/api/states/all?icao24={quote(icao24)}"
+    url = f"https://opensky-network.org/api/states/all?icao24={icao24}"
     app.logger.debug(f"Request URL: {url}")
     try:
         response = requests.get(url, auth=(OPENSKY_USERNAME, OPENSKY_PASSWORD))
