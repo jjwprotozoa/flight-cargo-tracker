@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import requests
 from datetime import datetime, timezone
 import os
+import logging
 
 class Config:
     TRACKINGMORE_API_KEY = os.environ.get('TRACKINGMORE_API_KEY') or 'fld2md4s-vrr0-5egt-mvbi-3rx546nbx105'
@@ -10,6 +11,9 @@ class Config:
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/')
 def home():
@@ -48,6 +52,7 @@ def get_flight_info():
             return jsonify({"error": "Flight not found or not currently tracked"}), 404
     
     except requests.RequestException as e:
+        app.logger.error(f"Flight API request failed: {str(e)}")
         return jsonify({"error": f"API request failed: {str(e)}"}), 500
 
 @app.route('/track_cargo', methods=['POST'])
@@ -75,6 +80,7 @@ def track_cargo():
             return jsonify({"error": "Cargo information not found"}), 404
     
     except requests.RequestException as e:
+        app.logger.error(f"Tracking API request failed: {str(e)}")
         return jsonify({"error": f"Tracking API request failed: {str(e)}"}), 500
 
 @app.route('/get_weather', methods=['GET'])
