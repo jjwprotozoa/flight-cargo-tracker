@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.css' rel='stylesheet' />
     <style>
         .card {
             height: 100%;
@@ -43,12 +44,11 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-primary text-white" data-toggle="collapse" data-target="#flightTrackingContent" aria-expanded="true" aria-controls="flightTrackingContent">
-                        <h2 class="bold-heading">Flight Tracking</h2>
-                        <div id="flightStatus" class="status"></div>
+                        <h2 class="bold-heading">Flight Tracking <span id="flightStatus" class="status"></span></h2>
                     </div>
                     <div id="flightTrackingContent" class="collapse show">
                         <div class="card-body">
-                            <form id="flightForm" method="post" action="/get_flight_info">
+                            <form id="flightForm">
                                 <div class="form-row">
                                     <div class="col">
                                         <input type="text" class="form-control" id="airlineCode" name="airline_code" placeholder="Airline Code (e.g., SWA)" value="SWA" required>
@@ -93,8 +93,7 @@
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header bg-success text-white" data-toggle="collapse" data-target="#cargoWaybillContent" aria-expanded="true" aria-controls="cargoWaybillContent">
-                        <h2 class="bold-heading">Cargo Waybill</h2>
-                        <div id="cargoStatus" class="status"></div>
+                        <h2 class="bold-heading">Cargo Waybill <span id="cargoStatus" class="status"></span></h2>
                     </div>
                     <div id="cargoWaybillContent" class="collapse show">
                         <div class="card-body">
@@ -156,13 +155,17 @@
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.js'></script>
     <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.css' type='text/css' />
-    <script src='https://api.mapbox.com/mapbox-traffic/v1.3.0/mapbox-traffic.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-traffic/v1.3.0/mapbox-gl-traffic.js'></script>
     <script>
         $(document).ready(function(){
             let refreshInterval;
             let lastSubmittedData;
             let updateFrequency;
-            mapboxgl.accessToken = 'pk.eyJ1IjoiZmxkaW52Z3JwIiwiYSI6ImNscjl2cmw4bDA1eGQya3Q2cThhejEyN2kifQ.K0cDZ_0cUwJktVaAQZm1pA';
+            const mapboxAccessToken = '{{ mapbox_key }}';
+            const weatherApiKey = '{{ weather_key }}';
+            const trackingmoreApiKey = '{{ trackingmore_key }}';
+            
+            mapboxgl.accessToken = mapboxAccessToken;
             var map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v11',
@@ -285,9 +288,22 @@
                 $('#etaInfo').html('<p>ETA to final destination would appear here.</p>');
             });
 
-            // Simulated weather and traffic info
-            $('#weatherInfo').html('<p><strong>Weather:</strong> Partly cloudy, 75°F</p>');
-            $('#trafficInfo').html('<p><strong>Traffic:</strong> Moderate congestion on I-4</p>');
+            function fetchWeather() {
+                const city = 'Orlando';
+                $.ajax({
+                    type: 'GET',
+                    url: `/get_weather?city=${city}`,
+                    success: function(data) {
+                        let weatherHtml = `<p><strong>Weather:</strong> ${data.current.condition.text}, ${data.current.temp_c}°C</p>`;
+                        $('#weatherInfo').html(weatherHtml);
+                    },
+                    error: function(xhr) {
+                        $('#weatherInfo').html(`<p class="text-danger">Error: ${xhr.responseJSON.error}</p>`);
+                    }
+                });
+            }
+
+            fetchWeather();
         });
     </script>
 </body>
