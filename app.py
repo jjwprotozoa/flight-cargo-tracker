@@ -1,32 +1,23 @@
 from flask import Flask, jsonify, request
 import requests
+import os
 
 app = Flask(__name__)
 
-# Replace these with your actual FlightStats API credentials
-FLIGHTSTATS_APP_ID = "8808bb23"
-FLIGHTSTATS_APP_KEY = "b138ee0863859350ffb19c540be19713"
-
-@app.route('/')
-def index():
-    return "Flight Cargo Tracker is running!"
-
-@app.route('/flight-info/<carrier_code>/<flight_number>', methods=['GET'])
-def get_flight_info(carrier_code, flight_number):
-    url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier_code}/{flight_number}/arr?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}"
+@app.route('/flight-info/<carrierCode>/<flightNumber>', methods=['GET'])
+def get_flight_info(carrierCode, flightNumber):
+    app_id = os.getenv('FLIGHTSTATS_APP_ID')
+    app_key = os.getenv('FLIGHTSTATS_APP_KEY')
+    url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrierCode}/{flightNumber}/dep?appId={app_id}&appKey={app_key}"
+    
     response = requests.get(url)
-
-    print(f"Response status code: {response.status_code}")
-    print(f"Response content: {response.text}")
+    print(f"URL: {url}")
+    print(f"Response: {response.text}")
 
     if response.status_code == 200:
-        try:
-            return jsonify(response.json())
-        except ValueError as e:
-            print(f"JSON decode error: {e}")
-            return jsonify({"error": "Error decoding JSON response"}), 500
+        return jsonify(response.json())
     else:
-        return jsonify({"error": response.json()}), response.status_code
+        return jsonify({'error': response.json()}), response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
