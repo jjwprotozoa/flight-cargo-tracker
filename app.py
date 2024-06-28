@@ -2,13 +2,10 @@ import os
 import requests
 from flask import Flask, render_template, jsonify
 import logging
+from config import Config
 
 app = Flask(__name__)
-
-# Set environment variables for the API credentials
-FLIGHTSTATS_APP_ID = os.getenv('FLIGHTSTATS_APP_ID', 'your_app_id_here')
-FLIGHTSTATS_APP_KEY = os.getenv('FLIGHTSTATS_APP_KEY', 'your_app_key_here')
-MAPBOX_ACCESS_TOKEN = os.getenv('MAPBOX_ACCESS_TOKEN', 'your_mapbox_access_token_here')
+app.config.from_object(Config)
 
 # Define the API endpoint template
 FLIGHT_STATUS_API_ENDPOINT = "https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier}/{flight_number}/arr/{year}/{month}/{day}"
@@ -20,8 +17,8 @@ logger = logging.getLogger()
 def fetch_flight_status(carrier, flight_number, year, month, day):
     url = FLIGHT_STATUS_API_ENDPOINT.format(carrier=carrier, flight_number=flight_number, year=year, month=month, day=day)
     params = {
-        'appId': FLIGHTSTATS_APP_ID,
-        'appKey': FLIGHTSTATS_APP_KEY,
+        'appId': app.config['FLIGHTSTATS_APP_ID'],
+        'appKey': app.config['FLIGHTSTATS_APP_KEY'],
     }
     logger.debug(f'Request URL: {url}')
 
@@ -39,7 +36,7 @@ def fetch_flight_status(carrier, flight_number, year, month, day):
 
 @app.route('/')
 def index():
-    return render_template('index.html', mapbox_access_token=MAPBOX_ACCESS_TOKEN)
+    return render_template('index.html', mapbox_access_token=app.config['MAPBOX_ACCESS_TOKEN'])
 
 @app.route('/flight-info/<carrier>/<flight_number>', methods=['GET'])
 def get_flight_info(carrier, flight_number):
