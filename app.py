@@ -1,83 +1,56 @@
-import logging
-from flask import Flask, render_template, jsonify, request
 import requests
-from bs4 import BeautifulSoup
+from flask import Flask, render_template, jsonify, request
 import os
 
 app = Flask(__name__)
 
-logging.basicConfig(level=logging.DEBUG)
+# OpenSky Network API credentials
+USERNAME = os.getenv('OPENSKY_USERNAME', 'your_opensky_username')
+PASSWORD = os.getenv('OPENSKY_PASSWORD', 'your_opensky_password')
 
-USE_API = False  # Set this to True if you want to use the API, False for scraping
-
-def fetch_flight_info_api(carrier_code, flight_number):
-    app_id = os.getenv('FLIGHTSTATS_APP_ID')
-    app_key = os.getenv('FLIGHTSTATS_APP_KEY')
-    url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier_code}/{flight_number}/arr?appId={app_id}&appKey={app_key}"
-    app.logger.debug(f"Request URL: {url}")
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
+# Function to fetch flight information using the OpenSky Network API
+def fetch_flight_info(flight_number):
+    url = f'https://opensky-network.org/api/states/all'
+    response = requests.get(url, auth=(USERNAME, PASSWORD))
+    if response.status_code == 200:
         data = response.json()
-        return {
-            'carrier': 'Southwest Airlines',
-            'flight_number': flight_number,
-            'departure_airport': data.get('departureAirport', 'N/A'),
-            'arrival_airport': data.get('arrivalAirport', 'N/A'),
-            'scheduled_departure': data.get('scheduledDeparture', 'N/A'),
-            'scheduled_arrival': data.get('scheduledArrival', 'N/A'),
-            'status': data.get('status', 'N/A'),
-        }
-    except requests.exceptions.HTTPError as http_err:
-        app.logger.error(f'HTTP error occurred: {http_err}')
-        return {'error': f'HTTP error occurred: {http_err}'}
-    except Exception as err:
-        app.logger.error(f'An error occurred: {err}')
-        return {'error': f'An error occurred: {err}'}
-
-def fetch_flight_info_scrape(carrier_code, flight_number):
-    url = f"https://www.flightaware.com/live/flight/{carrier_code}{flight_number}/history/20240628/1030Z/KSTL/KMCO"
-    app.logger.debug(f"Request URL: {url}")
-
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        flight_data = {
-            'carrier': 'Southwest Airlines',
-            'flight_number': flight_number,
-            'departure_airport': soup.find('span', {'id': 'departureAirport'}).text if soup.find('span', {'id': 'departureAirport'}) else 'N/A',
-            'arrival_airport': soup.find('span', {'id': 'arrivalAirport'}).text if soup.find('span', {'id': 'arrivalAirport'}) else 'N/A',
-            'scheduled_departure': soup.find('span', {'id': 'scheduledDeparture'}).text if soup.find('span', {'id': 'scheduledDeparture'}) else 'N/A',
-            'scheduled_arrival': soup.find('span', {'id': 'scheduledArrival'}).text if soup.find('span', {'id': 'scheduledArrival'}) else 'N/A',
-            'status': soup.find('span', {'id': 'status'}).text if soup.find('span', {'id': 'status'}) else 'N/A',
-        }
-        return flight_data
-    except requests.exceptions.HTTPError as http_err:
-        app.logger.error(f'HTTP error occurred: {http_err}')
-        return {'error': f'HTTP error occurred: {http_err}'}
-    except Exception as err:
-        app.logger.error(f'An error occurred: {err}')
-        return {'error': f'An error occurred: {err}'}
+        # Filter the data for the specific flight number
+        for flight in data['states']:
+            if flight_number in str(flight[1]):  # Assuming flight number matches callsign
+                return {
+                    'icao24': flight[0],
+                    'callsign': flight[1].strip(),
+                    'origin_country': flight[2],
+                    'time_position': flight[3],
+                    'last_contact': flight[4],
+                    'longitude': flight[5],
+                    'latitude': flight[6],
+                    'baro_altitude': flight[7],
+                    'on_ground': flight[8],
+                    'velocity': flight[9],
+                    'true_track': flight[10],
+                    'vertical_rate': flight[11],
+                    'sensors': flight[12],
+                    'geo_altitude': flight[13],
+                    'squawk': flight[14],
+                    'spi': flight[15],
+                    'position_source': flight[16]
+                }
+        return {'error': 'Flight not found'}
+    else:
+        return {'error': f'HTTP error occurred: {response.status_code} {response.reason}'}
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-@app.route('/flight-info/<carrier_code>/<flight_number>')
-def flight_info(carrier_code, flight_number):
-    carrier_code = carrier_code.upper()
-    app.logger.debug(f"Fetching info for {carrier_code} {flight_number}")
-    
-    if USE_API:
-        flight_data = fetch_flight_info_api(carrier_code, flight_number)
-    else:
-        flight_data = fetch_flight_info_scrape(carrier_code, flight_number)
-    
-    app.logger.debug(f"Fetched data: {flight_data}")
-    return jsonify(flight_data)
+@app.route('/flight-info', methods=['POST'])
+def flight_info():
+    flight_number = request.form['flight_number'].upper()
+    app.logger.debug(f'Fetching info for flight number: {flight_number}')
+    data = fetch_flight_info(flight_number)
+    app.logger.debug(f'Fetched data: {data}')
+    return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)

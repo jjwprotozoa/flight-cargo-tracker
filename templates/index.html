@@ -14,7 +14,6 @@
         }
         .result {
             margin-top: 20px;
-            display: none;
         }
         pre {
             background-color: #e9ecef;
@@ -24,9 +23,6 @@
         h1 {
             margin-bottom: 30px;
         }
-        .bold-text {
-            font-weight: bold;
-        }
     </style>
 </head>
 <body>
@@ -34,11 +30,7 @@
         <h1 class="text-center">Flight Cargo Tracker</h1>
         <form id="flightForm">
             <div class="form-group">
-                <label for="carrier_code" class="bold-text">Carrier Code:</label>
-                <input type="text" class="form-control" id="carrier_code" name="carrier_code" placeholder="SWA" value="SWA">
-            </div>
-            <div class="form-group">
-                <label for="flight_number" class="bold-text">Flight Number:</label>
+                <label for="flight_number">Flight Number:</label>
                 <input type="text" class="form-control" id="flight_number" name="flight_number" placeholder="Enter Flight Number">
             </div>
             <button type="submit" class="btn btn-primary">Get Flight Info</button>
@@ -52,30 +44,13 @@
     <script>
         $('#flightForm').on('submit', function(event) {
             event.preventDefault();
-            const carrierCode = $('#carrier_code').val().toUpperCase();
-            const flightNumber = $('#flight_number').val();
-            fetch(`/flight-info/${carrierCode}/${flightNumber}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        $('#result').text(data.error);
-                    } else {
-                        const formattedData = `
-Carrier: ${data.carrier}
-Flight Number: ${data.flight_number}
-Departure Airport: ${data.departure_airport}
-Arrival Airport: ${data.arrival_airport}
-Scheduled Departure: ${data.scheduled_departure}
-Scheduled Arrival: ${data.scheduled_arrival}
-Status: ${data.status}
-                        `;
-                        $('#result').text(formattedData);
-                        $('.result').show();
-                    }
+            const flightNumber = $('#flight_number').val().toUpperCase();
+            $.post('/flight-info', { flight_number: flightNumber })
+                .done(function(data) {
+                    $('#result').text(JSON.stringify(data, null, 2));
                 })
-                .catch(error => {
-                    $('#result').text('Error: ' + error);
-                    $('.result').show();
+                .fail(function() {
+                    $('#result').text('Error: Could not retrieve data.');
                 });
         });
     </script>
