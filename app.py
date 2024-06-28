@@ -8,35 +8,32 @@ app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-def scrape_flight_info(carrier_code, flight_number):
-    # Replace with the actual URL of the website you want to scrape
-    url = f"https://www.example.com/flight-status/{carrier_code}/{flight_number}"
+def fetch_flight_info(carrier_code, flight_number):
+    # Define the URL for scraping
+    url = f"https://www.flightaware.com/live/flight/{carrier_code}{flight_number}/history/20240628/1030Z/KSTL/KMCO"
     app.logger.debug(f"Request URL: {url}")
 
     try:
         response = requests.get(url)
         response.raise_for_status()
         soup = BeautifulSoup(response.content, 'html.parser')
-
-        # Example of extracting flight information; update selectors as needed
-        flight_info = {
-            'carrier': soup.find('div', {'id': 'carrier'}).text.strip(),
-            'flight_number': soup.find('div', {'id': 'flight_number'}).text.strip(),
-            'departure_airport': soup.find('div', {'id': 'departure_airport'}).text.strip(),
-            'arrival_airport': soup.find('div', {'id': 'arrival_airport'}).text.strip(),
-            'scheduled_departure': soup.find('div', {'id': 'scheduled_departure'}).text.strip(),
-            'scheduled_arrival': soup.find('div', {'id': 'scheduled_arrival'}).text.strip(),
-            'status': soup.find('div', {'id': 'status'}).text.strip(),
+        
+        # Extracting necessary information (example, you might need to adjust selectors based on actual HTML structure)
+        flight_data = {
+            'carrier': 'Southwest Airlines',
+            'flight_number': flight_number,
+            'departure_airport': soup.find('span', {'id': 'departureAirport'}).text,
+            'arrival_airport': soup.find('span', {'id': 'arrivalAirport'}).text,
+            'scheduled_departure': soup.find('span', {'id': 'scheduledDeparture'}).text,
+            'scheduled_arrival': soup.find('span', {'id': 'scheduledArrival'}).text,
+            'status': soup.find('span', {'id': 'status'}).text,
         }
-
-        app.logger.debug(f"Scraped Data: {flight_info}")
-        return flight_info
-
+        return flight_data
     except requests.exceptions.HTTPError as http_err:
-        app.logger.error(f"HTTP error occurred: {http_err}")
+        app.logger.error(f'HTTP error occurred: {http_err}')
         return {'error': f'HTTP error occurred: {http_err}'}
     except Exception as err:
-        app.logger.error(f"An error occurred: {err}")
+        app.logger.error(f'An error occurred: {err}')
         return {'error': f'An error occurred: {err}'}
 
 @app.route('/')
@@ -46,7 +43,7 @@ def home():
 @app.route('/flight-info/<carrier_code>/<flight_number>')
 def flight_info(carrier_code, flight_number):
     carrier_code = carrier_code.upper()
-    flight_data = scrape_flight_info(carrier_code, flight_number)
+    flight_data = fetch_flight_info(carrier_code, flight_number)
     return jsonify(flight_data)
 
 if __name__ == '__main__':
