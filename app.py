@@ -2,20 +2,18 @@ from flask import Flask, render_template, jsonify, request
 import requests
 from datetime import datetime, timezone
 import os
-from dotenv import load_dotenv
 
-load_dotenv()  # This loads the environment variables from .env file
+class Config:
+    TRACKINGMORE_API_KEY = os.environ.get('TRACKINGMORE_API_KEY') or 'fld2md4s-vrr0-5egt-mvbi-3rx546nbx105'
+    WEATHERAPI_KEY = os.environ.get('WEATHERAPI_KEY') or 'b9ec000c25f642d0a5c180924242806'
+    MAPBOX_API_KEY = os.environ.get('MAPBOX_API_KEY') or 'pk.eyJ1IjoiZmxkaW52Z3JwIiwiYSI6ImNscjl2cmw4bDA1eGQya3Q2cThhejEyN2kifQ.K0cDZ_0cUwJktVaAQZm1pA'
 
 app = Flask(__name__)
-
-# Configuration
-app.config['TRACKINGMORE_API_KEY'] = os.getenv('TRACKINGMORE_API_KEY')
-app.config['WEATHERAPI_KEY'] = os.getenv('WEATHERAPI_KEY')
-app.config['MAPBOX_PUBLIC_KEY'] = os.getenv('MAPBOX_PUBLIC_KEY')
+app.config.from_object(Config)
 
 @app.route('/')
 def home():
-    return render_template('index.html', mapbox_key=app.config['MAPBOX_PUBLIC_KEY'])
+    return render_template('index.html', mapbox_key=app.config['MAPBOX_API_KEY'])
 
 @app.route('/get_flight_info', methods=['POST'])
 def get_flight_info():
