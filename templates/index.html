@@ -10,7 +10,19 @@
             padding-top: 50px;
         }
         .container {
-            max-width: 700px;
+            max-width: 900px;
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .card-title, .card-text {
+            font-weight: bold;
+        }
+        .card-text span {
+            font-weight: normal;
+        }
+        .map-container {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -32,15 +44,40 @@
         <div id="flightInfo" class="card" style="display: none;">
             <div class="card-body">
                 <h5 class="card-title">Flight Information</h5>
-                <p class="card-text" id="flightData"></p>
+                <p class="card-text">
+                    <span>Carrier:</span> <span id="carrierName"></span><br>
+                    <span>Flight Number:</span> <span id="flightNum"></span><br>
+                    <span>Departure Airport:</span> <span id="departureAirport"></span><br>
+                    <span>Arrival Airport:</span> <span id="arrivalAirport"></span><br>
+                    <span>Scheduled Departure:</span> <span id="scheduledDeparture"></span><br>
+                    <span>Scheduled Arrival:</span> <span id="scheduledArrival"></span><br>
+                    <span>Status:</span> <span id="status"></span><br>
+                </p>
             </div>
         </div>
         <br>
         <div id="apiLimitInfo" class="alert alert-info" style="display: none;">
             <p id="apiLimitData"></p>
         </div>
+        <div id="mapContainer" class="map-container">
+            <h5>Flight Map and Navigation</h5>
+            <div id="flightMap" style="height: 400px;"></div>
+            <div id="navigationMap" style="height: 400px; margin-top: 20px;"></div>
+        </div>
+        <div id="weatherInfo" class="alert alert-secondary" style="display: none;">
+            <h5>Weather Information</h5>
+            <p id="weatherData"></p>
+        </div>
+        <div id="cargoTracking" class="card" style="display: none;">
+            <div class="card-body">
+                <h5 class="card-title">Cargo Tracking</h5>
+                <p class="card-text" id="cargoData"></p>
+            </div>
+        </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet" />
     <script>
         $('#flightForm').on('submit', function(e) {
             e.preventDefault();
@@ -52,22 +89,47 @@
                     $('#apiLimitInfo').hide();
                     alert(data.error);
                 } else {
-                    let flightData = `
-                        <strong>Carrier:</strong> ${data.appendix.airlines[0].name}<br>
-                        <strong>Flight Number:</strong> ${data.flightStatuses[0].flightNumber}<br>
-                        <strong>Departure Airport:</strong> ${data.appendix.airports[1].name} (${data.appendix.airports[1].iata})<br>
-                        <strong>Arrival Airport:</strong> ${data.appendix.airports[0].name} (${data.appendix.airports[0].iata})<br>
-                        <strong>Scheduled Departure:</strong> ${data.flightStatuses[0].departureDate.dateLocal}<br>
-                        <strong>Scheduled Arrival:</strong> ${data.flightStatuses[0].arrivalDate.dateLocal}<br>
-                        <strong>Status:</strong> ${data.flightStatuses[0].status}<br>
-                    `;
-                    $('#flightData').html(flightData);
+                    $('#carrierName').text(data.appendix.airlines[0].name);
+                    $('#flightNum').text(data.flightStatuses[0].flightNumber);
+                    $('#departureAirport').text(`${data.appendix.airports[1].name} (${data.appendix.airports[1].iata})`);
+                    $('#arrivalAirport').text(`${data.appendix.airports[0].name} (${data.appendix.airports[0].iata})`);
+                    $('#scheduledDeparture').text(new Date(data.flightStatuses[0].departureDate.dateLocal).toLocaleString());
+                    $('#scheduledArrival').text(new Date(data.flightStatuses[0].arrivalDate.dateLocal).toLocaleString());
+                    $('#status').text(`${data.flightStatuses[0].status} (${getStatusDescription(data.flightStatuses[0].status)})`);
                     $('#flightInfo').show();
                     let apiLimitData = `API Limits: ${data.api_limits.remaining} remaining out of ${data.api_limits.limit}`;
                     $('#apiLimitData').html(apiLimitData);
                     $('#apiLimitInfo').show();
                 }
             });
+        });
+
+        function getStatusDescription(status) {
+            const statusDescriptions = {
+                'A': 'Active',
+                'S': 'Scheduled',
+                'L': 'Landed',
+                'C': 'Cancelled',
+                'D': 'Diverted',
+                'DN': 'Data Not Available'
+            };
+            return statusDescriptions[status] || 'Unknown';
+        }
+
+        // Initialize Mapbox maps for flight and navigation
+        mapboxgl.accessToken = 'your_mapbox_access_token';
+        var flightMap = new mapboxgl.Map({
+            container: 'flightMap',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-90.379002, 38.748707], // Default center
+            zoom: 5
+        });
+
+        var navigationMap = new mapboxgl.Map({
+            container: 'navigationMap',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-81.308301, 28.432177], // Default center
+            zoom: 14
         });
     </script>
 </body>
