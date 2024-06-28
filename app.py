@@ -1,25 +1,20 @@
+import requests
 from flask import Flask, jsonify, request
-import requests  # Import the requests library
 
 app = Flask(__name__)
 
-FLIGHTSTATS_APP_ID = "8808bb23"  # Replace with your actual FlightStats App ID
-FLIGHTSTATS_APP_KEY = "b138ee0863859350ffb19c540be19713"  # Replace with your actual FlightStats App Key
-SOUTHWEST_CARGO_API_KEY = "59947e53eemsh783374ca03c5bdap101325jsn1face78e2b3f"  # Replace with your actual Southwest Cargo API Key
+RAPIDAPI_KEY = "YOUR_RAPIDAPI_KEY"
+RAPIDAPI_HOST = "exampleapi.p.rapidapi.com"  # Replace this with the actual host
 
-@app.route('/')
-def home():
-    return "Flight Cargo Tracker is running!"
-
-@app.route('/flight-info/<flight_number>')
+@app.route('/flight-info/<flight_number>', methods=['GET'])
 def get_flight_info(flight_number):
-    response = requests.get(f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{flight_number}?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}")
-    return jsonify(response.json())
-
-@app.route('/cargo-info/<waybill_number>')
-def get_cargo_info(waybill_number):
-    response = requests.get(f"https://api.southwestcargo.com/tracking/{waybill_number}?apiKey={SOUTHWEST_CARGO_API_KEY}")
+    url = f"https://{RAPIDAPI_HOST}/flight/status/{flight_number}"
+    headers = {
+        'x-rapidapi-host': RAPIDAPI_HOST,
+        'x-rapidapi-key': RAPIDAPI_KEY
+    }
+    response = requests.get(url, headers=headers)
     return jsonify(response.json())
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
