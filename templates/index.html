@@ -4,29 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Cargo Tracker</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        pre {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Flight Cargo Tracker</h1>
-    <form id="flightForm">
-        <label for="carrier">Carrier Code:</label>
-        <input type="text" id="carrier" name="carrier" oninput="this.value = this.value.toUpperCase()"><br><br>
-        <label for="flightNumber">Flight Number:</label>
-        <input type="text" id="flightNumber" name="flightNumber"><br><br>
-        <button type="submit">Get Flight Info</button>
-    </form>
-    <div id="result"></div>
+    <div class="container">
+        <h1 class="text-center">Flight Cargo Tracker</h1>
+        <form id="flightForm">
+            <div class="form-group">
+                <label for="carrier_code">Carrier Code:</label>
+                <input type="text" class="form-control" id="carrier_code" name="carrier_code" placeholder="SWA" value="SWA">
+            </div>
+            <div class="form-group">
+                <label for="flight_number">Flight Number:</label>
+                <input type="text" class="form-control" id="flight_number" name="flight_number" placeholder="Enter Flight Number">
+            </div>
+            <button type="submit" class="btn btn-primary">Get Flight Info</button>
+        </form>
+        <div class="result">
+            <h3>Flight Information</h3>
+            <pre id="result"></pre>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        document.getElementById('flightForm').addEventListener('submit', function(event) {
+        $('#flightForm').on('submit', function(event) {
             event.preventDefault();
-            const carrier = document.getElementById('carrier').value.toUpperCase();
-            const flightNumber = document.getElementById('flightNumber').value;
-            fetch(`/flight-info/${carrier}/${flightNumber}`)
+            const carrierCode = $('#carrier_code').val().toUpperCase();
+            const flightNumber = $('#flight_number').val();
+            fetch(`/flight-info/${carrierCode}/${flightNumber}`)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+                    $('#result').text(JSON.stringify(data, null, 2));
                 })
                 .catch(error => {
-                    document.getElementById('result').innerText = `Error: ${error}`;
+                    $('#result').text('Error: ' + error);
                 });
         });
     </script>

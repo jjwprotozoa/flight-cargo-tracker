@@ -1,8 +1,11 @@
+import logging
 from flask import Flask, render_template, jsonify, request
 import requests
 import os
 
 app = Flask(__name__)
+
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/')
 def home():
