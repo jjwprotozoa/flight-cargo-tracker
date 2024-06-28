@@ -1,17 +1,19 @@
 import os
 import requests
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, jsonify
 import logging
 
 app = Flask(__name__)
-app.config.from_object('config.Config')
 
-FLIGHTSTATS_APP_ID = app.config['FLIGHTSTATS_APP_ID']
-FLIGHTSTATS_APP_KEY = app.config['FLIGHTSTATS_APP_KEY']
-MAPBOX_ACCESS_TOKEN = app.config['MAPBOX_ACCESS_TOKEN']
+# Set environment variables for the API credentials
+FLIGHTSTATS_APP_ID = os.getenv('FLIGHTSTATS_APP_ID', 'your_app_id_here')
+FLIGHTSTATS_APP_KEY = os.getenv('FLIGHTSTATS_APP_KEY', 'your_app_key_here')
+MAPBOX_ACCESS_TOKEN = os.getenv('MAPBOX_ACCESS_TOKEN', 'your_mapbox_access_token_here')
 
+# Define the API endpoint template
 FLIGHT_STATUS_API_ENDPOINT = "https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier}/{flight_number}/arr/{year}/{month}/{day}"
 
+# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
 
