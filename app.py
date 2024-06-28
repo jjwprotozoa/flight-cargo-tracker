@@ -15,7 +15,7 @@ def index():
 def get_flight_info(carrier, flight):
     app_id = os.getenv('FLIGHTSTATS_APP_ID')
     app_key = os.getenv('FLIGHTSTATS_APP_KEY')
-    url = f'https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier}/{flight}?appId={app_id}&appKey={app_key}'
+    url = f'https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier}/{flight}/arr?appId={app_id}&appKey={app_key}'
     
     logging.debug(f'Request URL: {url}')
     
