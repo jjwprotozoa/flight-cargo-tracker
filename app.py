@@ -3,18 +3,31 @@ import requests
 
 app = Flask(__name__)
 
-RAPIDAPI_KEY = "35a4dab26fmshf94d4a957b08192p1c19fcjsn766023171635"
-RAPIDAPI_HOST = "rapidapi.com"
+# Replace these with your actual RapidAPI key and host
+RAPIDAPI_KEY = "35a4dab26fmshf9d4da957b08192p1c19fcjsn766023171635"
+RAPIDAPI_HOST = "southwest.p.rapidapi.com"
+
+@app.route('/')
+def index():
+    return "Flight Cargo Tracker is running!"
 
 @app.route('/flight-info/<flight_number>', methods=['GET'])
 def get_flight_info(flight_number):
-    url = f"https://{RAPIDAPI_HOST}/flight-status/{flight_number}"
+    url = f"https://{RAPIDAPI_HOST}/flights/{flight_number}"
+    
     headers = {
-        "X-RapidAPI-Host": RAPIDAPI_HOST,
-        "X-RapidAPI-Key": RAPIDAPI_KEY
+        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-host": RAPIDAPI_HOST
     }
-    response = requests.get(url, headers=headers)
-    return jsonify(response.json())
+
+    querystring = {"currency": "USD", "adults": "1", "seniors": "0"}
+
+    response = requests.get(url, headers=headers, params=querystring)
+    
+    if response.status_code == 200:
+        return jsonify(response.json())
+    else:
+        return jsonify({"error": response.json()}), response.status_code
 
 if __name__ == '__main__':
     app.run(debug=True)
