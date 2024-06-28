@@ -1,6 +1,7 @@
 import requests
 from flask import Flask, render_template, jsonify, request
 import os
+from urllib.parse import quote as url_quote  # Updated import
 
 app = Flask(__name__)
 
