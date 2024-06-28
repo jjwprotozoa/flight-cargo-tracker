@@ -30,7 +30,15 @@ def fetch_flight_status(carrier, flight_number, year, month, day):
         response = requests.get(url, params=params)
         response.raise_for_status()  # Raise an HTTPError for bad responses
         logger.debug(f'API Response: {response.json()}')
-        return response.json()
+        remaining_requests = response.headers.get('x-ratelimit-remaining')
+        total_requests = response.headers.get('x-ratelimit-limit')
+        api_limits = {
+            'remaining': remaining_requests,
+            'limit': total_requests
+        }
+        data = response.json()
+        data['api_limits'] = api_limits
+        return data
     except requests.exceptions.HTTPError as http_err:
         logger.error(f'HTTP error occurred: {http_err}')
         return {'error': f'HTTP error occurred: {http_err}'}

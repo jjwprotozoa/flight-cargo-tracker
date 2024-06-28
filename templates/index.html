@@ -4,24 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Cargo Tracker</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #f8f9fa;
+            padding-top: 50px;
         }
         .container {
-            margin-top: 50px;
-        }
-        .result {
-            margin-top: 20px;
-        }
-        pre {
-            background-color: #e9ecef;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        h1 {
-            margin-bottom: 30px;
+            max-width: 700px;
         }
     </style>
 </head>
@@ -30,34 +19,55 @@
         <h1 class="text-center">Flight Cargo Tracker</h1>
         <form id="flightForm">
             <div class="form-group">
-                <label for="carrier_code">Carrier Code:</label>
-                <input type="text" class="form-control" id="carrier_code" name="carrier_code" placeholder="SWA" value="SWA">
+                <label for="carrier">Carrier Code:</label>
+                <input type="text" class="form-control" id="carrier" placeholder="SWA" value="SWA" required>
             </div>
             <div class="form-group">
-                <label for="flight_number">Flight Number:</label>
-                <input type="text" class="form-control" id="flight_number" name="flight_number" placeholder="Enter Flight Number">
+                <label for="flightNumber">Flight Number:</label>
+                <input type="text" class="form-control" id="flightNumber" placeholder="159" required>
             </div>
-            <button type="submit" class="btn btn-primary">Get Flight Info</button>
+            <button type="submit" class="btn btn-primary btn-block">Get Flight Info</button>
         </form>
-        <div class="result">
-            <h3>Flight Information</h3>
-            <pre id="result"></pre>
+        <br>
+        <div id="flightInfo" class="card" style="display: none;">
+            <div class="card-body">
+                <h5 class="card-title">Flight Information</h5>
+                <p class="card-text" id="flightData"></p>
+            </div>
+        </div>
+        <br>
+        <div id="apiLimitInfo" class="alert alert-info" style="display: none;">
+            <p id="apiLimitData"></p>
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-        $('#flightForm').on('submit', function(event) {
-            event.preventDefault();
-            const carrierCode = $('#carrier_code').val().toUpperCase();
-            const flightNumber = $('#flight_number').val();
-            fetch(`/flight-info/${carrierCode}/${flightNumber}`)
-                .then(response => response.json())
-                .then(data => {
-                    $('#result').text(JSON.stringify(data, null, 2));
-                })
-                .catch(error => {
-                    $('#result').text('Error: ' + error);
-                });
+        $('#flightForm').on('submit', function(e) {
+            e.preventDefault();
+            let carrier = $('#carrier').val().toUpperCase();
+            let flightNumber = $('#flightNumber').val();
+            $.get(`/flight-info/${carrier}/${flightNumber}`, function(data) {
+                if (data.error) {
+                    $('#flightInfo').hide();
+                    $('#apiLimitInfo').hide();
+                    alert(data.error);
+                } else {
+                    let flightData = `
+                        <strong>Carrier:</strong> ${data.appendix.airlines[0].name}<br>
+                        <strong>Flight Number:</strong> ${data.flightStatuses[0].flightNumber}<br>
+                        <strong>Departure Airport:</strong> ${data.appendix.airports[1].name} (${data.appendix.airports[1].iata})<br>
+                        <strong>Arrival Airport:</strong> ${data.appendix.airports[0].name} (${data.appendix.airports[0].iata})<br>
+                        <strong>Scheduled Departure:</strong> ${data.flightStatuses[0].departureDate.dateLocal}<br>
+                        <strong>Scheduled Arrival:</strong> ${data.flightStatuses[0].arrivalDate.dateLocal}<br>
+                        <strong>Status:</strong> ${data.flightStatuses[0].status}<br>
+                    `;
+                    $('#flightData').html(flightData);
+                    $('#flightInfo').show();
+                    let apiLimitData = `API Limits: ${data.api_limits.remaining} remaining out of ${data.api_limits.limit}`;
+                    $('#apiLimitData').html(apiLimitData);
+                    $('#apiLimitInfo').show();
+                }
+            });
         });
     </script>
 </body>
