@@ -11,9 +11,9 @@ FLIGHTSTATS_APP_KEY = "b138ee0863859350ffb19c540be19713"
 def index():
     return "Flight Cargo Tracker is running!"
 
-@app.route('/flight-info/<flight_number>', methods=['GET'])
-def get_flight_info(flight_number):
-    url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{flight_number}?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}"
+@app.route('/flight-info/<carrier_code>/<flight_number>', methods=['GET'])
+def get_flight_info(carrier_code, flight_number):
+    url = f"https://api.flightstats.com/flex/flightstatus/rest/v2/json/flight/status/{carrier_code}/{flight_number}/arr?appId={FLIGHTSTATS_APP_ID}&appKey={FLIGHTSTATS_APP_KEY}"
     response = requests.get(url)
 
     print(f"Response status code: {response.status_code}")
