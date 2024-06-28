@@ -34,6 +34,9 @@
                         } else {
                             $('#flightInfo').html(`<pre>${JSON.stringify(data, null, 2)}</pre>`);
                         }
+                    },
+                    error: function(xhr){
+                        $('#flightInfo').html(`<p>Error: ${xhr.responseJSON.error}</p>`);
                     }
                 });
             });
