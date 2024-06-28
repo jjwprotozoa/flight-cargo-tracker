@@ -40,11 +40,4 @@ def fetch_flight_info(carrier_code, flight_number):
 def home():
     return render_template('index.html')
 
-@app.route('/flight-info/<carrier_code>/<flight_number>')
-def flight_info(carrier_code, flight_number):
-    carrier_code = carrier_code.upper()
-    flight_data = fetch_flight_info(carrier_code, flight_number)
-    return jsonify(flight_data)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+@app.route('/flight-info/<carrier_code>/<flight_number>'
