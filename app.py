@@ -2,27 +2,28 @@ from flask import Flask, render_template, jsonify, request
 import requests
 from datetime import datetime, timezone
 import os
-from config import Config
+from dotenv import load_dotenv
+
+load_dotenv()  # This loads the environment variables from .env file
 
 app = Flask(__name__)
-app.config.from_object(Config)
+
+# Configuration
+app.config['TRACKINGMORE_API_KEY'] = os.getenv('TRACKINGMORE_API_KEY')
+app.config['WEATHERAPI_KEY'] = os.getenv('WEATHERAPI_KEY')
+app.config['MAPBOX_PUBLIC_KEY'] = os.getenv('MAPBOX_PUBLIC_KEY')
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', mapbox_key=app.config['MAPBOX_PUBLIC_KEY'])
 
 @app.route('/get_flight_info', methods=['POST'])
 def get_flight_info():
     flight_number = request.form['flight_number']
     airline_code = request.form['airline_code']
     
-    # Construct the full callsign
     callsign = f"{airline_code}{flight_number}"
-    
-    # Get current timestamp
     current_time = int(datetime.now(timezone.utc).timestamp())
-    
-    # OpenSky API URL
     url = f"https://opensky-network.org/api/states/all?time={current_time}"
     
     try:
@@ -30,7 +31,6 @@ def get_flight_info():
         response.raise_for_status()
         data = response.json()
         
-        # Search for the flight in the response
         flight_data = next((state for state in data['states'] if state[1] and state[1].strip() == callsign), None)
         
         if flight_data:
@@ -56,8 +56,7 @@ def get_flight_info():
 def track_cargo():
     waybill_number = request.form['waybill_number']
     
-    # Replace this with actual API call to TrackingMore
-    tracking_url = f"https://api.trackingmore.com/v2/trackings/realtime"
+    tracking_url = "https://api.trackingmore.com/v2/trackings/realtime"
     headers = {
         "Content-Type": "application/json",
         "Trackingmore-Api-Key": app.config['TRACKINGMORE_API_KEY']
