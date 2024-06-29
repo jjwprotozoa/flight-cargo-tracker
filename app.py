@@ -1,102 +1,48 @@
-from flask import Flask, render_template, jsonify, request
-import requests
-from datetime import datetime, timezone
 import os
-import logging
+import requests
+from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
 
-class Config:
-    TRACKINGMORE_API_KEY = os.environ.get('TRACKINGMORE_API_KEY') or 'fld2md4s-vrr0-5egt-mvbi-3rx546nbx105'
-    WEATHERAPI_KEY = os.environ.get('WEATHERAPI_KEY') or 'b9ec000c25f642d0a5c180924242806'
-    MAPBOX_API_KEY = os.environ.get('MAPBOX_API_KEY') or 'pk.eyJ1IjoiZmxkaW52Z3JwIiwiYSI6ImNscjl2cmw4bDA1eGQya3Q2cThhejEyN2kifQ.K0cDZ_0cUwJktVaAQZm1pA'
+load_dotenv()
 
 app = Flask(__name__)
-app.config.from_object(Config)
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+MAPBOX_KEY = os.getenv('MAPBOX_KEY')
+TRACKINGMORE_API_KEY = os.getenv('TRACKINGMORE_API_KEY')
+OPENSKY_USERNAME = os.getenv('OPENSKY_USERNAME')
+OPENSKY_PASSWORD = os.getenv('OPENSKY_PASSWORD')
 
 @app.route('/')
-def home():
-    return render_template('index.html', mapbox_key=app.config['MAPBOX_API_KEY'])
+def index():
+    return render_template('index.html', mapbox_key=MAPBOX_KEY)
 
 @app.route('/get_flight_info', methods=['POST'])
 def get_flight_info():
-    flight_number = request.form['flight_number']
-    airline_code = request.form['airline_code']
+    airline_code = request.form.get('airline_code')
+    flight_number = request.form.get('flight_number')
     
-    callsign = f"{airline_code}{flight_number}"
-    current_time = int(datetime.now(timezone.utc).timestamp())
-    url = f"https://opensky-network.org/api/states/all?time={current_time}"
+    # This is a placeholder. You should implement the actual API call to OpenSky or your preferred flight tracking API
+    # For now, we'll return mock data
+    mock_data = {
+        "icao24": "a1b2c3",
+        "callsign": f"{airline_code}{flight_number}",
+        "origin_country": "United States",
+        "longitude": -80.9,
+        "latitude": 28.1,
+        "altitude": 10000,
+        "velocity": 200,
+        "heading": 90,
+        "vertical_rate": 0
+    }
     
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        
-        flight_data = next((state for state in data['states'] if state[1] and state[1].strip() == callsign), None)
-        
-        if flight_data:
-            flight_info = {
-                "icao24": flight_data[0],
-                "callsign": flight_data[1],
-                "origin_country": flight_data[2],
-                "longitude": flight_data[5],
-                "latitude": flight_data[6],
-                "altitude": flight_data[7],
-                "velocity": flight_data[9],
-                "heading": flight_data[10],
-                "vertical_rate": flight_data[11]
-            }
-            return jsonify(flight_info)
-        else:
-            return jsonify({"error": "Flight not found or not currently tracked"}), 404
-    
-    except requests.RequestException as e:
-        app.logger.error(f"Flight API request failed: {str(e)}")
-        return jsonify({"error": f"API request failed: {str(e)}"}), 500
+    return jsonify(mock_data)
 
-@app.route('/track_cargo', methods=['POST'])
-def track_cargo():
-    waybill_number = request.form['waybill_number']
+@app.route('/track_air_waybill', methods=['POST'])
+def track_air_waybill():
+    tracking_number = request.form.get('tracking_number')
+    carrier_code = request.form.get('carrier_code')
     
-    tracking_url = "https://api.trackingmore.com/v2/trackings/realtime"
+    api_url = "https://api.trackingmore.com/v2/trackings/get"
+    
     headers = {
-        "Content-Type": "application/json",
-        "Trackingmore-Api-Key": app.config['TRACKINGMORE_API_KEY']
-    }
-    payload = {
-        "tracking_number": waybill_number,
-        "courier_code": "swacargo"  # Adjust this as needed
-    }
-    
-    try:
-        response = requests.post(tracking_url, json=payload, headers=headers)
-        response.raise_for_status()
-        data = response.json()
-        
-        if data['meta']['code'] == 200 and data['data']:
-            return jsonify(data['data'][0])
-        else:
-            return jsonify({"error": "Cargo information not found"}), 404
-    
-    except requests.RequestException as e:
-        app.logger.error(f"Tracking API request failed: {str(e)}")
-        return jsonify({"error": f"Tracking API request failed: {str(e)}"}), 500
-
-@app.route('/get_weather', methods=['GET'])
-def get_weather():
-    city = request.args.get('city', 'Orlando')  # Default to Orlando if no city provided
-    api_key = app.config['WEATHERAPI_KEY']
-    url = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}"
-    
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        return jsonify(data)
-    except requests.RequestException as e:
-        app.logger.error(f"Weather API request failed: {str(e)}")
-        return jsonify({"error": f"Weather API request failed: {str(e)}"}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        "Content-Type
