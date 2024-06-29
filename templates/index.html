@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<<<<<<< HEAD
     <!-- ... (keep the existing head content) ... -->
     <style>
         .card { margin-bottom: 20px; }
@@ -13,6 +14,28 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+=======
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courier Logistics Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        .card {
+            height: 100%;
+        }
+        .btn-group-toggle .btn {
+            margin-right: 5px;
+        }
+        .bold-heading {
+            font-weight: bold;
+        }
+        #map {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 20px;
+>>>>>>> previous-version
         }
     </style>
 </head>
@@ -25,6 +48,7 @@
             <div class="grid-item">
                 <!-- Flight Tracking Section -->
                 <div class="card">
+<<<<<<< HEAD
                     <div id="flightHeader" class="card-header bg-primary text-white">
                         Flight Tracking
                     </div>
@@ -109,6 +133,48 @@
                             </div>
                         </form>
                         <div id="flightInfo" class="mt-3"></div>
+=======
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="bold-heading">Flight Tracking</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="flightForm" method="post" action="/get_flight_info">
+                            <div class="form-row">
+                                <div class="col">
+                                    <input type="text" class="form-control" id="airlineCode" name="airline_code" placeholder="Airline Code (e.g., SWA)" value="SWA" required>
+                                </div>
+                                <div class="col">
+                                    <input type="text" class="form-control" id="flightNumber" name="flight_number" placeholder="Flight Number" value="3719" required>
+                                </div>
+                            </div>
+                            <div class="form-group mt-2">
+                                <label class="bold-heading">Update Frequency:</label>
+                                <div class="btn-group btn-group-toggle btn-group-sm" data-toggle="buttons">
+                                    <label class="btn btn-danger">
+                                        <input type="radio" name="updateFrequency" value="60000"> 60s
+                                    </label>
+                                    <label class="btn btn-warning">
+                                        <input type="radio" name="updateFrequency" value="300000"> 5m
+                                    </label>
+                                    <label class="btn btn-info">
+                                        <input type="radio" name="updateFrequency" value="900000"> 15m
+                                    </label>
+                                    <label class="btn btn-primary active">
+                                        <input type="radio" name="updateFrequency" value="1800000" checked> 30m
+                                    </label>
+                                    <label class="btn btn-secondary">
+                                        <input type="radio" name="updateFrequency" value="3600000"> 60m
+                                    </label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">Track Flight</button>
+                            <button id="stopUpdates" class="btn btn-danger" style="display: none;">Stop Updates</button>
+                        </form>
+                        <div id="flightInfo" class="mt-3"></div>
+                        <div id="flightDelayInfo" class="mt-2 text-danger small"></div>
+                        <div id="lastUpdated" class="mt-2 text-muted small"></div>
+                        <div id="nextUpdate" class="mt-2 text-muted small"></div>
+>>>>>>> previous-version
                     </div>
                 </div>
                 <div id="flightMap" class="mt-3"></div>
@@ -117,6 +183,7 @@
             <div class="grid-item">
                 <!-- Cargo Waybill Section -->
                 <div class="card">
+<<<<<<< HEAD
                     <div id="cargoHeader" class="card-header bg-success text-white">
                         Cargo Waybill <span id="cargoStatus" class="status"></span>
                     </div>
@@ -152,11 +219,28 @@
                     <div class="card-body">
                         <div id="weatherInfo"></div>
                         <div id="trafficInfo" class="mt-3"></div>
+=======
+                    <div class="card-header bg-success text-white">
+                        <h2 class="bold-heading">Cargo Waybill</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="waybillForm">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="waybillNumber" placeholder="Enter Waybill Number" value="14559565" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="carrierCode" placeholder="Enter Carrier Code" value="fedex" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Track Cargo</button>
+                        </form>
+                        <div id="waybillInfo" class="mt-3"></div>
+>>>>>>> previous-version
                     </div>
                 </div>
             </div>
         </div>
 
+<<<<<<< HEAD
         <!-- Navigation Section -->
         <div class="card mt-4">
             <div class="card-header bg-info text-white">
@@ -174,6 +258,41 @@
                         <div class="col">
                             <input type="text" class="form-control" id="endLocation" placeholder="End Location" required>
                         </div>
+=======
+        <div class="row mt-4">
+            <!-- Navigation Section -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h2 class="bold-heading">Navigation</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="navigationForm">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="destination" value="8835 Bear Rd, Orlando, FL" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="finalDestination" placeholder="Enter Final Destination" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Get Directions</button>
+                        </form>
+                        <div id="map"></div>
+                        <div id="navigationInfo" class="mt-3"></div>
+                        <div id="etaInfo" class="mt-3 text-muted small"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather and Traffic Section -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h2 class="bold-heading">Weather & Traffic</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="weatherInfo"></div>
+                        <div id="trafficInfo" class="mt-3"></div>
+>>>>>>> previous-version
                     </div>
                     <button type="submit" class="btn btn-info mt-2">Get Directions</button>
                 </form>
@@ -184,6 +303,7 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<<<<<<< HEAD
     <script src="https://cdnjs.cloudflare.com/ajax/libs/framework7/5.7.14/js/framework7.bundle.min.js"></script>
     <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
     <script>
@@ -205,6 +325,23 @@
                 app.dialog.alert('Tracking flight ' + airlineCode + flightNumber);
 
                 $('#stopUpdatesBtn').show();
+=======
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.js'></script>
+    <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.0.0/mapbox-gl-directions.css' type='text/css' />
+    <script>
+        $(document).ready(function(){
+            let refreshInterval;
+            let lastSubmittedData;
+            let updateFrequency;
+            mapboxgl.accessToken = '{{ mapbox_key }}';
+            var map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [-81.379234, 28.538336], // starting position [lng, lat]
+                zoom: 9 // starting zoom
+>>>>>>> previous-version
             });
 
             $('#stopUpdatesBtn').on('click', function() {
@@ -213,6 +350,7 @@
                 $(this).hide();
             });
 
+<<<<<<< HEAD
             // Update flight tracking
             function updateFlightInfo(data) {
                 const statusClass = data.status === 'On Time' ? 'status-ontime' : 'status-delayed';
@@ -228,6 +366,9 @@
                     <p><strong>Arrival:</strong> ${data.arrivalTime}</p>
                 `;
                 $('#flightInfo').html(infoHtml);
+=======
+            map.addControl(directions, 'top-left');
+>>>>>>> previous-version
 
                 // Update flight position on map with direction arrow
                 if (flightMarker) {
@@ -243,6 +384,7 @@
                 }
                 flightMap.flyTo({center: [data.longitude, data.latitude], zoom: 5});
 
+<<<<<<< HEAD
                 // Draw flight path (simplified example)
                 if (data.path) {
                     flightMap.addLayer({
@@ -269,6 +411,46 @@
                         }
                     });
                 }
+=======
+            function updateNextUpdate() {
+                let nextUpdateTime = new Date(Date.now() + updateFrequency);
+                $('#nextUpdate').text('Next update: ' + nextUpdateTime.toLocaleTimeString());
+            }
+
+            function fetchFlightInfo() {
+                $.ajax({
+                    type: 'POST',
+                    url: '/get_flight_info',
+                    data: lastSubmittedData,
+                    success: function(data){
+                        if (data.error) {
+                            $('#flightInfo').html(`<p class="text-danger">${data.error}</p>`);
+                        } else {
+                            let infoHtml = `
+                                <p><strong>ICAO24:</strong> ${data.icao24}</p>
+                                <p><strong>Callsign:</strong> ${data.callsign}</p>
+                                <p><strong>Origin Country:</strong> ${data.origin_country}</p>
+                                <p><strong>Longitude:</strong> ${data.longitude}</p>
+                                <p><strong>Latitude:</strong> ${data.latitude}</p>
+                                <p><strong>Altitude:</strong> ${data.altitude} meters</p>
+                                <p><strong>Velocity:</strong> ${data.velocity} m/s</p>
+                                <p><strong>Heading:</strong> ${data.heading}°</p>
+                                <p><strong>Vertical Rate:</strong> ${data.vertical_rate} m/s</p>
+                            `;
+                            $('#flightInfo').html(infoHtml);
+                            // Placeholder for delay information
+                            $('#flightDelayInfo').html(`<p><strong>Flight Delay:</strong> No delays reported</p>`);
+                        }
+                        updateLastUpdated();
+                        updateNextUpdate();
+                    },
+                    error: function(xhr){
+                        $('#flightInfo').html(`<p class="text-danger">Error: ${xhr.responseJSON.error}</p>`);
+                        updateLastUpdated();
+                        updateNextUpdate();
+                    }
+                });
+>>>>>>> previous-version
             }
 
             function createArrowElement(rotation) {
@@ -286,6 +468,7 @@
             $('#waybillForm').on('submit', function(e){
                 e.preventDefault();
                 const waybillNumber = $('#waybillNumber').val();
+<<<<<<< HEAD
 
                 $.ajax({
                     url: '/trackCargo',
@@ -353,6 +536,57 @@
             });
 
             // ... (keep existing weather and traffic code) ...
+=======
+                const carrierCode = $('#carrierCode').val();
+                $.ajax({
+                    url: '/track_air_waybill',
+                    method: 'POST',
+                    data: {
+                        tracking_number: waybillNumber,
+                        carrier_code: carrierCode
+                    },
+                    success: function(response) {
+                        if (response.error) {
+                            $('#waybillInfo').html(`<p class="text-danger">${response.error}</p>`);
+                        } else {
+                            let infoHtml = `
+                                <h5>Air Waybill Tracking Information</h5>
+                                <p><strong>Tracking Number:</strong> ${response.tracking_number}</p>
+                                <p><strong>Carrier:</strong> ${response.carrier_code}</p>
+                                <p><strong>Status:</strong> ${response.status}</p>
+                            `;
+                            if (response.trackinfo && response.trackinfo.length > 0) {
+                                infoHtml += '<h6>Tracking History:</h6><ul>';
+                                response.trackinfo.forEach(info => {
+                                    infoHtml += `<li>${info.Date}: ${info.StatusDescription}</li>`;
+                                });
+                                infoHtml += '</ul>';
+                            }
+                            $('#waybillInfo').html(infoHtml);
+                        }
+                    },
+                    error: function() {
+                        $('#waybillInfo').html('<p class="text-danger">Error tracking air waybill</p>');
+                    }
+                });
+            });
+
+            $('#navigationForm').on('submit', function(e){
+                e.preventDefault();
+                const destination = $('#destination').val();
+                const finalDestination = $('#finalDestination').val();
+                directions.setOrigin('current location'); // Use current location or specify as needed
+                directions.addWaypoint(0, destination);
+                directions.setDestination(finalDestination);
+                // Placeholder logic for navigation and ETA
+                $('#navigationInfo').html('<p>Navigation directions would appear here.</p>');
+                $('#etaInfo').html('<p>ETA to final destination would appear here.</p>');
+            });
+
+            // Simulated weather and traffic info
+            $('#weatherInfo').html('<p><strong>Weather:</strong> Partly cloudy, 75°F</p>');
+            $('#trafficInfo').html('<p><strong>Traffic:</strong> Moderate congestion on I-4</p>');
+>>>>>>> previous-version
         });
     </script>
 </body>
